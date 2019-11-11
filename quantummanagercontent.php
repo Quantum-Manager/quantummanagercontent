@@ -147,9 +147,17 @@ EOT
 
 		$scope = $data['scope'];
 		$file = QuantummanagerHelper::preparePath($data['path'], false, $scope, true);
+		$name = explode('/', $file);
+		$filename = end($name);
+        $type = explode('.', $file);
+        $filetype = end($type);
+        $filesize = filesize(JPATH_SITE."/".$file);
 		$scopesTemplate = $this->params->get('scopes', QuantummanagercontentHelper::defaultValues());
 		$variables = [
 			'{file}' => $file,
+            '{filename}' => $filename,
+            '{type}' => $filetype,
+            '{size}' => $this->convert_filesize($filesize),
 		];
 
 		foreach ($data as $key => $value)
@@ -197,5 +205,10 @@ EOT
 		$app->close();
 	}
 
+    public function convert_filesize($bytes, $decimals = 2){
+        $size = array('b','kB','MB','GB','TB','PB','EB','ZB','YB');
+        $factor = floor((strlen($bytes) - 1) / 3);
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . " " . @$size[$factor];
+    }
 
 }
