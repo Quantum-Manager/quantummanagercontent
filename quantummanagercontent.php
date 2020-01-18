@@ -137,7 +137,7 @@ EOT
 		$data = $app->input->getArray();
 		$html = '';
 
-		if(!isset($data['file'], $data['scope']))
+		if(!isset($data['params'], $data['scope']))
 		{
 			$app->close();
 		}
@@ -146,6 +146,7 @@ EOT
 		JLoader::register('QuantummanagercontentHelper', JPATH_ROOT . '/plugins/editors-xtd/quantummanagercontent/helper.php');
 
 		$scope = $data['scope'];
+		$params = json_decode($data['params'], JSON_OBJECT_AS_ARRAY);
 		$file = QuantummanagerHelper::preparePath($data['path'], false, $scope, true);
 		$name = explode('/', $file);
 		$filename = end($name);
@@ -153,20 +154,9 @@ EOT
         $filetype = end($type);
         $filesize = filesize(JPATH_ROOT . '/' . $file);
 		$scopesTemplate = $this->params->get('scopes', QuantummanagercontentHelper::defaultValues());
-		$variables = [
-			'{file}' => $file,
-            '{filename}' => $filename,
-            '{type}' => $filetype,
-            '{size}' => $this->convertFilesize($filesize),
-		];
+		$variablesParams = [];
 
-		foreach ($data as $key => $value)
-		{
-			if(preg_match("#^\{.*?\}$#isu", $key))
-			{
-				$variables[$key] = trim($value);
-			}
-		}
+		$variables = array_merge($variables, $variablesParams);
 
 		$template = '<a href="{file}" target="_blank">{name}</a>';
 
@@ -176,29 +166,102 @@ EOT
 			if($scopesTemplateCurrent->id === $scope)
 			{
 
-				if(empty($scopesTemplateCurrent->template))
+				if(empty($scopesTemplateCurrent->templatelist))
 				{
-					$template = '<a href="{file}" target="_blank">{name}</a>';
+					foreach($params['files'] as $item)
+					{
+						$file = QuantummanagerHelper::preparePath($data['path'], false, $scope, true) . DIRECTORY_SEPARATOR . $item['file'];
+						$name = explode('/', $file);
+						$filename = end($name);
+						$type = explode('.', $file);
+						$filetype = end($type);
+						$filesize = filesize(JPATH_ROOT . '/' . $file);
+
+						$variables = [
+							'{file}' => $file,
+							'{filename}' => $filename,
+							'{type}' => $filetype,
+							'{size}' => $this->convertFilesize($filesize),
+						];
+
+
+						foreach ($item['fields'] as $key => $value)
+						{
+							if (preg_match("#^\{.*?\}$#isu", $key))
+							{
+								$variables[$key] = trim($value);
+							}
+						}
+
+						$template = '<a href="{file}" target="_blank">{name}</a>';
+						$variablesFind = [];
+						$variablesReplace = [];
+
+						foreach ($variables as $key => $value)
+						{
+							$variablesFind[] = $key;
+							$variablesReplace[] = $value;
+						}
+
+						$html = str_replace($variablesFind, $variablesReplace, $template);
+						$html = preg_replace("#[a-zA-Z]{1,}\=\"\"#isu", '', $html);
+					}
 				}
 				else
 				{
-					$template = $scopesTemplateCurrent->template;
+					foreach ($scopesTemplateCurrent->templatelist as $templateList)
+					{
+						if($templateList->templatename === $params['template'])
+						{
+							//собираем по выбранному шаблону
+							$html = $templateList->templatebefore;
+
+							foreach($params['files'] as $item)
+							{
+								$file = QuantummanagerHelper::preparePath($data['path'], false, $scope, true) . DIRECTORY_SEPARATOR . $item['file'];
+								$name = explode('/', $file);
+								$filename = end($name);
+								$type = explode('.', $file);
+								$filetype = end($type);
+								$filesize = filesize(JPATH_ROOT . '/' . $file);
+
+								$variables = [
+									'{file}' => $file,
+									'{filename}' => $filename,
+									'{type}' => $filetype,
+									'{size}' => $this->convertFilesize($filesize),
+								];
+
+								foreach ($item['fields'] as $key => $value)
+								{
+									if(preg_match("#^\{.*?\}$#isu", $key))
+									{
+										$variables[$key] = trim($value);
+									}
+								}
+
+								$variablesFind = [];
+								$variablesReplace = [];
+
+
+								foreach ($variables as $key => $value)
+								{
+									$variablesFind[] = $key;
+									$variablesReplace[] = $value;
+								}
+
+								$item = str_replace($variablesFind, $variablesReplace, $templateList->template);
+								$item = preg_replace("#[a-zA-Z]{1,}\=\"\"#isu", '', $item);
+								$html .= $item;
+							}
+
+							$html .= $templateList->templateafter;
+						}
+					}
 				}
 
 			}
 		}
-
-		$variablesFind = [];
-		$variablesReplace = [];
-
-		foreach ($variables as $key => $value)
-		{
-			$variablesFind[] = $key;
-			$variablesReplace[] = $value;
-		}
-
-		$html = str_replace($variablesFind, $variablesReplace, $template);
-		$html = preg_replace("#[a-zA-Z]{1,}\=\"\"#isu", '', $html);
 
 		echo $html;
 

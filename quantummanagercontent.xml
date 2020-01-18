@@ -92,13 +92,47 @@
 						</field>
 
 						<field
-								name="template"
-								type="textarea"
-								label="PLG_BUTTON_QUANTUMMANAGERCONTENT_CONFIG_SCOPES_TEMPLATE"
-								rows="10"
-								cols="10"
-								filter="raw"
-						/>
+							name="templatelist"
+							type="subform"
+							label="PLG_BUTTON_QUANTUMMANAGERCONTENT_CONFIG_SCOPES_TEMPLATE_LIST"
+							required="true"
+							multiple="true">
+							<form>
+								<field
+										name="templatename"
+										type="text"
+										label="PLG_BUTTON_QUANTUMMANAGERCONTENT_CONFIG_SCOPES_TEMPLATE_NAME"
+								/>
+
+								<field
+										name="templatebefore"
+										type="textarea"
+										label="PLG_BUTTON_QUANTUMMANAGERCONTENT_CONFIG_SCOPES_TEMPLATE_BEFORE"
+										rows="10"
+										cols="10"
+										filter="raw"
+								/>
+
+								<field
+										name="template"
+										type="textarea"
+										label="PLG_BUTTON_QUANTUMMANAGERCONTENT_CONFIG_SCOPES_TEMPLATE_ITEM"
+										rows="10"
+										cols="10"
+										filter="raw"
+								/>
+
+								<field
+										name="templateafter"
+										type="textarea"
+										label="PLG_BUTTON_QUANTUMMANAGERCONTENT_CONFIG_SCOPES_TEMPLATE_AFTER"
+										rows="10"
+										cols="10"
+										filter="raw"
+								/>
+							</form>
+						</field>
+
 					</form>
 				</field>
 			</fieldset>

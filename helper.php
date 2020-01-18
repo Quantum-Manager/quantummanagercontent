@@ -63,6 +63,51 @@ class QuantummanagercontentHelper
 		return $output;
 	}
 
+	/**
+	 *
+	 * @return array
+	 *
+	 * @since version
+	 */
+	public static function getTemplateListForScopes()
+	{
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->quoteName(array('params')))
+			->from('#__extensions')
+			->where( 'element=' . $db->quote('quantummanagercontent'));
+		$extension = $db->setQuery( $query )->loadObject();
+		$params = json_decode($extension->params, JSON_OBJECT_AS_ARRAY);
+
+		if(!isset($params['scopes']) || empty($params['scopes']) || count((array)$params['scopes']) === 0)
+		{
+			$scopes = self::defaultValues();
+		}
+		else
+		{
+			$scopes = $params['scopes'];
+		}
+
+		$output = [];
+
+		foreach ($scopes as $scope)
+		{
+			$templatelist = [];
+			$templatelistFromScope = $scope['templatelist'];
+			foreach ($templatelistFromScope as $keyTemplate => $template)
+			{
+				$templatelist[] = $template['templatename'];
+			}
+			$scope = (array)$scope;
+			$output[$scope['id']] = [
+				'title' => $scope['title'],
+				'templatelist' => $templatelist
+			];
+		}
+
+		return $output;
+	}
+
 
 	/**
 	 *

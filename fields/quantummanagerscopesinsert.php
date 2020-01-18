@@ -62,7 +62,7 @@ class JFormFieldQuantummanagerscopesinsert extends JFormFieldSubform
 				$title = Text::_($scope->title);
 			}
 
-			$defaultTemplate = '';
+			$defaultTemplateList = '';
 			$defaultFieldsform = '';
 
 			if (isset($defaultValues[$scope->id])) {
@@ -75,7 +75,7 @@ class JFormFieldQuantummanagerscopesinsert extends JFormFieldSubform
 				'titleLabel' => $scope->title,
 				'id' => $scope->id,
 				'fieldsform' => $findValue !== null ? $findValue['fieldsform'] : $defaultFieldsform,
-				'template' => $findValue !== null ? $findValue['template'] : $defaultTemplate,
+				'templatelist' => $findValue !== null ? $findValue['templatelist'] : $defaultTemplateList,
 			];
 
 			$i++;
