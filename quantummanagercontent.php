@@ -155,9 +155,11 @@ EOT
         $filesize = filesize(JPATH_ROOT . '/' . $file);
 		$scopesTemplate = $this->params->get('scopes', QuantummanagercontentHelper::defaultValues());
 		$variablesParams = [];
+		$html = '';
 
 		$variables = array_merge($variables, $variablesParams);
 
+		$shortCode = false;
 		$template = '<a href="{file}" target="_blank">{name}</a>';
 
 		foreach ($scopesTemplate as $scopesTemplateCurrent)
@@ -214,8 +216,21 @@ EOT
 						if($templateList->templatename === $params['template'])
 						{
 							//собираем по выбранному шаблону
-							$html = $templateList->templatebefore;
+							$templatebefore = '';
+							$templateitems = '';
+							$templateafter = '';
 
+							if(preg_match("#^\{.*?\}$#isu", trim($templateList->templatebefore)))
+							{
+								$templatebefore = '[before]' .$templateList->templatebefore . '[/before]';
+								$shortCode = true;
+							}
+							else
+							{
+								$templatebefore = $templateList->templatebefore;
+							}
+
+							$variablesForTemplate = [];
 							foreach($params['files'] as $item)
 							{
 								$file = QuantummanagerHelper::preparePath($data['path'], false, $scope, true) . DIRECTORY_SEPARATOR . $item['file'];
@@ -250,12 +265,44 @@ EOT
 									$variablesReplace[] = $value;
 								}
 
-								$item = str_replace($variablesFind, $variablesReplace, $templateList->template);
-								$item = preg_replace("#[a-zA-Z]{1,}\=\"\"#isu", '', $item);
-								$html .= $item;
+								if(preg_match("#^\{.*?\}$#isu", trim($templateList->template)))
+								{
+									$shortCode = true;
+									$variablesForTemplate[] = $variables;
+								}
+								else
+								{
+									$item = str_replace($variablesFind, $variablesReplace, $templateList->template);
+									$item = preg_replace("#[a-zA-Z]{1,}\=\"\"#isu", '', $item);
+									$templateitems .= $item;
+								}
+
 							}
 
-							$html .= $templateList->templateafter;
+							if($shortCode)
+							{
+								$templateitems = '[item][variables] ' . json_encode($variablesForTemplate) . '[/variables][template]' . $templateList->template . '[/template][/item]';
+							}
+
+							if(preg_match("#^\{.*?\}$#isu", trim($templateList->templateafter)))
+							{
+								$templateafter = '[after]' . $templateList->templateafter . '[/after]';
+								$shortCode = true;
+							}
+							else
+							{
+								$templateafter = $templateList->templateafter;
+							}
+
+							if($shortCode)
+							{
+								$html = '[qmcontent]' . $templatebefore . $templateitems . $templateafter . '[/qmcontent]';
+							}
+							else
+							{
+								$html = $templatebefore . $templateitems . $templateafter;
+							}
+
 						}
 					}
 				}
