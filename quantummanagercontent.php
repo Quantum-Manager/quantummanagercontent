@@ -16,7 +16,7 @@ use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Session\Session;
 
-class PlgButtonQuantummanagercontent extends CMSPlugin
+class PlgContentQuantummanagercontent extends CMSPlugin
 {
 	/**
 	 * Load the language file on instantiation.
@@ -30,16 +30,113 @@ class PlgButtonQuantummanagercontent extends CMSPlugin
 
 	/**
 	 * @param $context
-	 * @param $article
+	 * @param $item
 	 * @param $params
-	 * @param $page
+	 * @param int $page
 	 *
 	 *
 	 * @since version
 	 */
-	public function onContentPrepare($context, $article, $params, $page)
+	public function onContentPrepare($context, &$item, &$params, $page = 0)
 	{
+		// Prepare the text
+		if (isset($item->text))
+		{
+			$item->text = $this->prepare($item->text, $context, $item);
+		}
 
+		// Prepare the intro text
+		if (isset($item->introtext))
+		{
+			$item->introtext = $this->prepare($item->introtext, $context, $item);
+		}
+
+	}
+
+
+	/**
+	 * @param $string
+	 * @param $context
+	 * @param $item
+	 *
+	 * @return string|string[]|null
+	 *
+	 * @since version
+	 */
+	private function prepare($string, $context, $item)
+	{
+		$regex = "/\[qmcontent\](.*?)\[\/qmcontent\]/i";
+		$render = $this->render;
+		$string = preg_replace_callback($regex, static function ($matches) use ($render){
+			$content = &$matches[1];
+			$before = '';
+			$variables = '';
+			$item = '';
+			$after = '';
+			preg_replace_callback("/\[before\](.*?)\[\/before\]/i", function ($matchesBefore) use (&$before) {
+				$before = str_replace(['{', '}'], '', $matchesBefore[1]);
+			}, $content);
+
+			preg_replace_callback("/\[item\](.*?)\[\/item\]/i", function ($matchesBefore) use (&$item) {
+				$item = str_replace(['{', '}'], '', $matchesBefore[1]);
+			}, $content);
+
+			preg_replace_callback("/\[variables\](.*?)\[\/variables\]/i", function ($matchesBefore) use (&$variables) {
+				$variables = $matchesBefore[1];
+			}, $content);
+
+			preg_replace_callback("/\[after\](.*?)\[\/after\]/i", function ($matchesBefore) use (&$after) {
+				$after = str_replace(['{', '}'], '', $matchesBefore[1]);
+			}, $content);
+
+			if(!empty($before) && !empty($variables) && !empty($item) && !empty($after))
+			{
+				$render = function ($layoutId, $data = []) {
+					$app = Factory::getApplication();
+					$template = $app->getTemplate();
+					$layout = new FileLayout($layoutId);
+					$layout->addIncludePath([
+						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_content_quantummanagercontent']),
+						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_quantummanagcontent']),
+						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_button_quantummanagerbutton']),
+					]);
+
+					$output = $layout->render();
+					return $output;
+				};
+
+				$output = $render($before);
+
+				$variables = json_decode($variables, JSON_OBJECT_AS_ARRAY);
+
+				if(is_array($variables) && count($variables) > 0)
+				{
+					foreach ($variables as $variable)
+					{
+						$outputItem = $render($item);
+
+						$variablesFind = [];
+						$variablesReplace = [];
+
+						foreach ($variable as $key => $value)
+						{
+							$variablesFind[] = $key;
+							$variablesReplace[] = $value;
+						}
+
+						$outputItem = str_replace($variablesFind, $variablesReplace, $outputItem);
+						$outputItem = preg_replace("#[a-zA-Z]{1,}\=\"\"#isu", '', $outputItem);
+						$output .= $outputItem;
+					}
+				}
+
+				$output .= $render($after);
+			}
+
+
+		}, $string);
+
+		return $string;
 	}
 
 }
