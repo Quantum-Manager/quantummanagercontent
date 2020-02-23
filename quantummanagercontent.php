@@ -96,6 +96,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 					$template = $app->getTemplate();
 					$layout = new FileLayout($layoutId);
 					$layout->addIncludePath([
+						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'layouts' , 'plg_quantummanagcontent']),
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_content_quantummanagercontent']),
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_quantummanagcontent']),
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_button_quantummanagerbutton']),
@@ -138,5 +139,6 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 
 		return $string;
 	}
+
 
 }
