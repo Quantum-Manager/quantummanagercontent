@@ -65,9 +65,16 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 	 */
 	private function prepare($string, $context, $item)
 	{
+
+		if(!strpos($string, '[qmcontent]'))
+		{
+			return $string;
+		}
+
 		$regex = "/\[qmcontent\](.*?)\[\/qmcontent\]/i";
 		$render = $this->render;
-		$string = preg_replace_callback($regex, static function ($matches) use ($render){
+		$string = preg_replace_callback($regex, static function ($matches) use ($render) {
+			$output = '';
 			$content = &$matches[1];
 			$before = '';
 			$variables = '';
@@ -77,7 +84,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				$before = str_replace(['{', '}'], '', $matchesBefore[1]);
 			}, $content);
 
-			preg_replace_callback("/\[item\](.*?)\[\/item\]/i", function ($matchesBefore) use (&$item) {
+			preg_replace_callback("/\[template\](.*?)\[\/template\]/i", function ($matchesBefore) use (&$item) {
 				$item = str_replace(['{', '}'], '', $matchesBefore[1]);
 			}, $content);
 
@@ -91,12 +98,14 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 
 			if(!empty($before) && !empty($variables) && !empty($item) && !empty($after))
 			{
-				$render = function ($layoutId, $data = []) {
+				$render = static function ($layoutId) {
 					$app = Factory::getApplication();
 					$template = $app->getTemplate();
 					$layout = new FileLayout($layoutId);
 					$layout->addIncludePath([
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'layouts' , 'plg_quantummanagcontent']),
+						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'layouts', 'plg_quantummanagcontent']),
+						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'layouts', 'plg_content_quantummanagercontent']),
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_content_quantummanagercontent']),
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_quantummanagcontent']),
 						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_button_quantummanagerbutton']),
@@ -115,7 +124,6 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 					foreach ($variables as $variable)
 					{
 						$outputItem = $render($item);
-
 						$variablesFind = [];
 						$variablesReplace = [];
 
@@ -134,7 +142,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				$output .= $render($after);
 			}
 
-
+			return $output;
 		}, $string);
 
 		return $string;
