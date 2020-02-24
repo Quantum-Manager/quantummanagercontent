@@ -66,7 +66,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 	private function prepare($string, $context, $item)
 	{
 
-		if(!strpos($string, '[qmcontent]'))
+		if(strpos($string, '[qmcontent]') === false)
 		{
 			return $string;
 		}
