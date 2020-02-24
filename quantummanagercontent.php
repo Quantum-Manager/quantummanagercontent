@@ -71,6 +71,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 			return $string;
 		}
 
+		JLoader::register('QuantummanagerbuttonHelper', JPATH_ROOT . '/plugins/editors-xtd/quantummanagerbutton/helper.php');
 		$regex = "/\[qmcontent\](.*?)\[\/qmcontent\]/i";
 		$render = $this->render;
 		$string = preg_replace_callback($regex, static function ($matches) use ($render) {
@@ -98,24 +99,9 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 
 			if(!empty($before) && !empty($variables) && !empty($item) && !empty($after))
 			{
-				$render = static function ($layoutId) {
-					$app = Factory::getApplication();
-					$template = $app->getTemplate();
-					$layout = new FileLayout($layoutId);
-					$layout->addIncludePath([
-						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'layouts' , 'plg_quantummanagcontent']),
-						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'layouts', 'plg_quantummanagcontent']),
-						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'layouts', 'plg_content_quantummanagercontent']),
-						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_content_quantummanagercontent']),
-						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_quantummanagcontent']),
-						JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['templates', $template, 'html' , 'plg_button_quantummanagerbutton']),
-					]);
 
-					$output = $layout->render();
-					return $output;
-				};
 
-				$output = $render($before);
+				$output = QuantummanagerbuttonHelper::renderLayout($before);
 
 				$variables = json_decode($variables, JSON_OBJECT_AS_ARRAY);
 
@@ -123,7 +109,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				{
 					foreach ($variables as $variable)
 					{
-						$outputItem = $render($item);
+						$outputItem = QuantummanagerbuttonHelper::renderLayout($item);
 						$variablesFind = [];
 						$variablesReplace = [];
 
@@ -139,7 +125,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 					}
 				}
 
-				$output .= $render($after);
+				$output .= QuantummanagerbuttonHelper::renderLayout($after);
 			}
 
 			return $output;
