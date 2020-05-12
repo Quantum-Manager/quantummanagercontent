@@ -80,27 +80,39 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 			$variables = '';
 			$item = '';
 			$after = '';
-			preg_replace_callback("/\[before\](.*?)\[\/before\]/i", function ($matchesBefore) use (&$before) {
-				$before = str_replace(['{', '}'], '', $matchesBefore[1]);
+
+			preg_replace_callback("/\[before\](.*?)\[\/before\]/i", function ($matchesBefore) use (&$before, &$output) {
+			    if(preg_match("#^\{\{.*?\}\}$#isu", $matchesBefore[1]))
+                {
+                    $before = str_replace(['{', '}'], '', $matchesBefore[1]);
+                    $output .= QuantummanagerbuttonHelper::renderLayout($before);
+                }
+			    else
+                {
+                    $output .= $before;
+                }
+
 			}, $content);
 
 			preg_replace_callback("/\[template\](.*?)\[\/template\]/i", function ($matchesBefore) use (&$item) {
-				$item = str_replace(['{', '}'], '', $matchesBefore[1]);
+                if(preg_match("#^\{\{.*?\}\}$#isu", $matchesBefore[1]))
+                {
+                    $item = str_replace(['{', '}'], '', $matchesBefore[1]);
+                    $item = QuantummanagerbuttonHelper::renderLayout($item);
+                }
+				else
+                {
+                    $item = $matchesBefore[1];
+                }
 			}, $content);
 
 			preg_replace_callback("/\[variables\](.*?)\[\/variables\]/i", function ($matchesBefore) use (&$variables) {
 				$variables = $matchesBefore[1];
 			}, $content);
 
-			preg_replace_callback("/\[after\](.*?)\[\/after\]/i", function ($matchesBefore) use (&$after) {
-				$after = str_replace(['{', '}'], '', $matchesBefore[1]);
-			}, $content);
 
 			if(!empty($variables) && !empty($item))
 			{
-
-
-				$output = QuantummanagerbuttonHelper::renderLayout($before);
 
 				$variables = json_decode($variables, JSON_OBJECT_AS_ARRAY);
 
@@ -108,8 +120,8 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				{
 					foreach ($variables as $variable)
 					{
-						$outputItem = QuantummanagerbuttonHelper::renderLayout($item);
-						$variablesFind = [];
+                        $outputItem = $item;
+                        $variablesFind = [];
 						$variablesReplace = [];
 
 						foreach ($variable as $key => $value)
@@ -124,8 +136,21 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 					}
 				}
 
-				$output .= QuantummanagerbuttonHelper::renderLayout($after);
+
 			}
+
+            preg_replace_callback("/\[after\](.*?)\[\/after\]/i", function ($matchesBefore) use (&$after, &$output) {
+                if(preg_match("#^\{\{.*?\}\}$#isu", $matchesBefore[1]))
+                {
+                    $after = str_replace(['{', '}'], '', $matchesBefore[1]);
+                    $output .= QuantummanagerbuttonHelper::renderLayout($after);
+                }
+                else
+                {
+                    $output .= $after;
+                }
+
+            }, $content);
 
 			return $output;
 		}, $string);
