@@ -73,8 +73,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 
 		JLoader::register('QuantummanagerbuttonHelper', JPATH_ROOT . '/plugins/editors-xtd/quantummanagerbutton/helper.php');
 		$regex = "/\[qmcontent\](.*?)\[\/qmcontent\]/i";
-		$render = $this->render;
-		$string = preg_replace_callback($regex, static function ($matches) use ($render) {
+		$string = preg_replace_callback($regex, static function ($matches) {
 			$output = '';
 			$content = &$matches[1];
 			$before = '';
