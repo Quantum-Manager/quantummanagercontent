@@ -96,7 +96,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				$after = str_replace(['{', '}'], '', $matchesBefore[1]);
 			}, $content);
 
-			if(!empty($before) && !empty($variables) && !empty($item) && !empty($after))
+			if(!empty($variables) && !empty($item))
 			{
 
 
