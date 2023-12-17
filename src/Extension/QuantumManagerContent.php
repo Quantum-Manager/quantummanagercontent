@@ -1,4 +1,5 @@
-<?php
+<?php namespace Joomla\Plugin\Content\QuantumManagerContent\Extension;
+
 /**
  * @package    quantummanagercontent
  * @author     Dmitry Tsymbal <cymbal@delo-design.ru>
@@ -15,8 +16,9 @@ use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Session\Session;
+use Joomla\Plugin\Button\QuantumManagerButton\Helper\ButtonHelper;
 
-class PlgContentQuantummanagercontent extends CMSPlugin
+class QuantumManagerContent extends CMSPlugin
 {
 	/**
 	 * Load the language file on instantiation.
@@ -76,7 +78,6 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 			return $string;
 		}
 
-		JLoader::register('QuantummanagerbuttonHelper', JPATH_ROOT . '/plugins/editors-xtd/quantummanagerbutton/helper.php');
 		$regex  = "/\[qmcontent\](.*?)\[\/qmcontent\]/i";
 		$string = preg_replace_callback($regex, static function ($matches) {
 			$output    = '';
@@ -90,7 +91,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				if (preg_match("#^\{\{.*?\}\}$#isu", $matchesBefore[1]))
 				{
 					$before = str_replace(['{', '}'], '', $matchesBefore[1]);
-					$output .= QuantummanagerbuttonHelper::renderLayout($before);
+					$output .= ButtonHelper::renderLayout($before);
 				}
 				else
 				{
@@ -103,7 +104,7 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 				if (preg_match("#^\{\{.*?\}\}$#isu", $matchesBefore[1]))
 				{
 					$item = str_replace(['{', '}'], '', $matchesBefore[1]);
-					$item = QuantummanagerbuttonHelper::renderLayout($item);
+					$item = ButtonHelper::renderLayout($item);
 				}
 				else
 				{
@@ -140,15 +141,14 @@ class PlgContentQuantummanagercontent extends CMSPlugin
 						$output     .= $outputItem;
 					}
 				}
-
-
+				
 			}
 
 			preg_replace_callback("/\[after\](.*?)\[\/after\]/i", function ($matchesBefore) use (&$after, &$output) {
 				if (preg_match("#^\{\{.*?\}\}$#isu", $matchesBefore[1]))
 				{
 					$after  = str_replace(['{', '}'], '', $matchesBefore[1]);
-					$output .= QuantummanagerbuttonHelper::renderLayout($after);
+					$output .= ButtonHelper::renderLayout($after);
 				}
 				else
 				{

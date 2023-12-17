@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.9" type="plugin" group="content" method="upgrade">
-	<name>PLG_CONTENT_QUANTUMMANAGERCONTENT</name>
-	<author>Tsymbal</author>
-	<creationDate>18.09.2019</creationDate>
-	<copyright>Copyright © 2020 Delo Design &amp; NorrNext. All rights reserved.</copyright>
-	<license>https://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-	<authorEmail>cymbal@delo-design.ru</authorEmail>
-	<authorUrl>https://www.norrnext.com</authorUrl>
-	<version>1.4</version>
-	<description>PLG_CONTENT_QUANTUMMANAGERCONTENT_DESCRIPTION</description>
-	<scriptfile>script.php</scriptfile>
-	<languages folder="language">
-		<language tag="en-GB">en-GB/en-GB.plg_content_quantummanagercontent.ini</language>
-		<language tag="en-GB">en-GB/en-GB.plg_content_quantummanagercontent.sys.ini</language>
-		<language tag="ru-RU">ru-RU/ru-RU.plg_content_quantummanagercontent.ini</language>
-		<language tag="ru-RU">ru-RU/ru-RU.plg_content_quantummanagercontent.sys.ini</language>
-	</languages>
-	<files>
-		<filename plugin="quantummanagercontent">quantummanagercontent.php</filename>
-	</files>
+    <name>PLG_CONTENT_QUANTUMMANAGERCONTENT</name>
+    <author>Tsymbal</author>
+    <creationDate>18.09.2019</creationDate>
+    <copyright>Copyright © 2020 Delo Design &amp; NorrNext. All rights reserved.</copyright>
+    <license>https://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+    <authorEmail>cymbal@delo-design.ru</authorEmail>
+    <authorUrl>https://www.norrnext.com</authorUrl>
+    <version>1.4</version>
+    <description>PLG_CONTENT_QUANTUMMANAGERCONTENT_DESCRIPTION</description>
+    <namespace path="src">Joomla\Plugin\Content\QuantumManagerContent</namespace>
+    <scriptfile>script.php</scriptfile>
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_content_quantummanagercontent.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_content_quantummanagercontent.sys.ini</language>
+        <language tag="ru-RU">ru-RU/ru-RU.plg_content_quantummanagercontent.ini</language>
+        <language tag="ru-RU">ru-RU/ru-RU.plg_content_quantummanagercontent.sys.ini</language>
+    </languages>
+    <files>
+        <folder>language</folder>
+        <folder>services</folder>
+        <folder plugin="quantummanagercontent">src</folder>
+    </files>
 </extension>
