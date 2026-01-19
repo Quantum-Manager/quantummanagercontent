@@ -1,4 +1,6 @@
-<?php namespace Joomla\Plugin\Content\QuantumManagerContent\Extension;
+<?php
+
+namespace Joomla\Plugin\Content\QuantumManagerContent\Extension;
 
 /**
  * @package    quantummanagercontent
@@ -10,62 +12,39 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\Layout\FileLayout;
-use Joomla\CMS\Object\CMSObject;
+use Joomla\CMS\Event\Content\ContentPrepareEvent;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Session\Session;
+use Joomla\Event\SubscriberInterface;
 use Joomla\Plugin\Button\QuantumManagerButton\Helper\ButtonHelper;
 
-class QuantumManagerContent extends CMSPlugin
+class QuantumManagerContent extends CMSPlugin implements SubscriberInterface
 {
-	/**
-	 * Load the language file on instantiation.
-	 *
-	 * @var  boolean
-	 *
-	 * @since   1.1.0
-	 */
 	protected $autoloadLanguage = true;
 
-
-	/**
-	 * @param        $context
-	 * @param        $item
-	 * @param        $params
-	 * @param   int  $page
-	 *
-	 *
-	 * @since version
-	 */
-	public function onContentPrepare($context, &$item, &$params, $page = 0)
+	public static function getSubscribedEvents(): array
 	{
-		// Prepare the text
+		return [
+			'onContentPrepare' => 'onContentPrepare',
+		];
+	}
+
+	public function onContentPrepare(ContentPrepareEvent $event)
+	{
+		$context = $event->getContext();
+		$item    = $event->getItem();
+
 		if (isset($item->text))
 		{
 			$item->text = $this->prepare($item->text, $context, $item);
 		}
 
-		// Prepare the intro text
 		if (isset($item->introtext))
 		{
 			$item->introtext = $this->prepare($item->introtext, $context, $item);
 		}
-
 	}
 
-
-	/**
-	 * @param $string
-	 * @param $context
-	 * @param $item
-	 *
-	 * @return string|string[]|null
-	 *
-	 * @since version
-	 */
-	private function prepare($string, $context, $item)
+	private function prepare(mixed $string, mixed $context, mixed $item): string
 	{
 
 		if (!is_string($string))
@@ -116,7 +95,6 @@ class QuantumManagerContent extends CMSPlugin
 				$variables = $matchesBefore[1];
 			}, $content);
 
-
 			if (!empty($variables) && !empty($item))
 			{
 
@@ -141,7 +119,6 @@ class QuantumManagerContent extends CMSPlugin
 						$output     .= $outputItem;
 					}
 				}
-				
 			}
 
 			preg_replace_callback("/\[after\](.*?)\[\/after\]/i", function ($matchesBefore) use (&$after, &$output) {
@@ -162,6 +139,5 @@ class QuantumManagerContent extends CMSPlugin
 
 		return $string;
 	}
-
 
 }
